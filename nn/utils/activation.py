@@ -1,6 +1,8 @@
 """
 This packages defines the different types of activation functions
-of a neural network
+of a neural network. Activation functions can be seen as a way for introducing
+non linearity in a neural network.
+
 """
 import math
 import numpy as np
@@ -19,28 +21,41 @@ class ActivationFunctionEnum(Enum):
 
 class ActivationFunction(metaclass=ABCMeta):
     """
-    Defines a blue print for an utils function
+    Defines a blue print for an activation function
     of a neuron
     """
 
     @abstractmethod
     def activate(self, input):
         """
-        subclasses should override this method to defines the
-        logic of utils function
+        subclasses should override this method to define the
+        logic of an activation function
+
         :return: a double specifying 
+        """
+        pass
+
+    @abstractmethod
+    def gradient(self, input):
+        """
+        Returns the gradient of activation function wrt input.
+
+        :param input:
+        :return:
         """
         pass
 
     def __call__(self, input):
         return self.activate(input)
 
-
-
 class SigmoidFunction(ActivationFunction):
     """
     Implements an ActivationFunction as a sigmoid function
     to provide a smooth and continous transition from 0 to 1.
+
+    <code>sigmoid(z) = 1 / 1 + e^-z</code>
+    <code>sigmoid'(z) =sigmoid(z)(1 - sigmoid(z)</code>
+
     """
 
     def activate(self, input):
@@ -48,6 +63,12 @@ class SigmoidFunction(ActivationFunction):
             return SigmoidFunction.sigmoid_vector(input)
         else:
             return SigmoidFunction.sigmoid_scalar(input)
+
+    def gradient(self, input):
+        if isinstance(input, np.ndarray):
+            return SigmoidFunction.sigmoid_vector(input)*(1 - SigmoidFunction.sigmoid_vector(input))
+        else:
+            return SigmoidFunction.sigmoid_scalar(input)*(1 - SigmoidFunction.sigmoid_scalar(input))
 
     @staticmethod
     def sigmoid_scalar(x):
